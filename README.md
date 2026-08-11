@@ -27,11 +27,10 @@
 docker compose up --build
 ```
 
-คำสั่งนี้จะรัน 3 services พร้อมกัน:
+คำสั่งนี้จะรัน 2 services พร้อมกัน:
 
-- **db** — PostgreSQL 16 (สร้างตารางและนำเข้าข้อมูลตัวอย่างให้อัตโนมัติในการรันครั้งแรก
-  ผ่านสคริปต์ `server/src/db/migrations/001_init.sql` และ `server/src/db/seeds/001_seed.sql`)
-- **server** — Express API ที่พอร์ต `4000`
+- **server** — Express API ที่พอร์ต `4000` เชื่อมต่อฐานข้อมูล PostgreSQL จริงบน Aiven Cloud
+  โดยอ่านค่าการเชื่อมต่อจากไฟล์ `.env` ที่ root ของโปรเจกต์ (ผ่าน `env_file` ใน `docker-compose.yml`)
 - **client** — เว็บแอป React (build แล้ว serve ผ่าน Nginx) ที่พอร์ต `8080`
   พร้อม reverse proxy เส้นทาง `/api` ไปยัง server ให้อัตโนมัติ
 
@@ -40,25 +39,21 @@ docker compose up --build
 - หน้ายื่นคำขอทุน (นักศึกษา): http://localhost:8080/ (หน้าแรกของระบบ)
 - หน้าเข้าสู่ระบบเจ้าหน้าที่: http://localhost:8080/login
 
-หยุดระบบด้วย `docker compose down` (เพิ่ม `-v` หากต้องการล้างข้อมูลในฐานข้อมูลด้วย
-เพื่อให้การรันครั้งถัดไปนำเข้าข้อมูลตัวอย่างใหม่อีกครั้ง)
+หยุดระบบด้วย `docker compose down` หรือดับเบิลคลิก `STOP.bat`
 
-> หมายเหตุ: ฐานข้อมูล PostgreSQL ใน docker-compose เป็นฐานข้อมูลอิสระที่สร้างขึ้นใหม่สำหรับการทดสอบ
-> โดยเฉพาะ (แยกจากฐานข้อมูลที่ผู้พัฒนาใช้พัฒนาระบบจริงบน Aiven) จึงไม่จำเป็นต้องตั้งค่า `.env` หรือ
-> การเชื่อมต่ออินเทอร์เน็ตใด ๆ ก่อนรัน `docker compose up` และไม่มี credential จริงปรากฏใน repository
+> หมายเหตุ: ไฟล์ `.env` (ซึ่งมี connection string จริงของฐานข้อมูล) ถูก commit ไว้ใน repository นี้
+> โดยตั้งใจ เพื่อให้ทั้ง Docker และการรันแบบ local development เชื่อมต่อฐานข้อมูลจริงได้ทันที
+> โดยไม่ต้องตั้งค่าอะไรเพิ่มเติม ระบบต้องมีการเชื่อมต่ออินเทอร์เน็ตขณะรัน `docker compose up`
 
 ## วิธีรันระบบแบบ Local Development (ไม่ใช้ Docker)
 
-ข้อกำหนด: Node.js 20+, npm, และฐานข้อมูล PostgreSQL ของตนเอง (local หรือ cloud)
+ข้อกำหนด: Node.js 20+, npm
 
-1. คัดลอกไฟล์ environment ตัวอย่าง แล้วใส่ค่าการเชื่อมต่อฐานข้อมูลของตนเอง
+โปรเจกต์นี้มีไฟล์ `.env` พร้อมค่าเชื่อมต่อฐานข้อมูล Aiven จริงมาให้แล้ว จึงรันได้ทันทีโดยไม่ต้อง
+ตั้งค่าอะไรเพิ่ม (หากต้องการใช้ฐานข้อมูลของตนเองแทน แก้ไขค่า `DATABASE_URL` ในไฟล์ `.env` ได้เลย
+หรือดูตัวอย่างรูปแบบได้จาก `.env.example`)
 
-   ```bash
-   cp .env.example .env
-   # แก้ไขค่า DATABASE_URL, JWT_SECRET ในไฟล์ .env ให้ตรงกับฐานข้อมูลของท่าน
-   ```
-
-2. ติดตั้งและรัน Backend
+1. ติดตั้งและรัน Backend
 
    ```bash
    cd server
@@ -68,7 +63,7 @@ docker compose up --build
    npm run dev            # รันที่ http://localhost:4000
    ```
 
-3. ติดตั้งและรัน Frontend (เปิดอีก terminal หนึ่ง)
+2. ติดตั้งและรัน Frontend (เปิดอีก terminal หนึ่ง)
 
    ```bash
    cd client
@@ -76,7 +71,7 @@ docker compose up --build
    npm run dev   # รันที่ http://localhost:5173 (proxy /api ไปที่ server อัตโนมัติผ่าน vite.config.js)
    ```
 
-4. เปิดเบราว์เซอร์ไปที่ http://localhost:5173/ (หน้านักศึกษา หน้าแรกของระบบ)
+3. เปิดเบราว์เซอร์ไปที่ http://localhost:5173/ (หน้านักศึกษา หน้าแรกของระบบ)
    หรือ http://localhost:5173/login (หน้าเจ้าหน้าที่)
 
 ## บัญชีทดสอบสำหรับเข้าสู่ระบบ (เจ้าหน้าที่)
@@ -87,13 +82,17 @@ docker compose up --build
 
 ## ข้อมูลตัวอย่าง (Seed Data)
 
-สคริปต์ seed (`server/src/db/seeds/001_seed.sql`) จะสร้างข้อมูลตัวอย่างดังนี้โดยอัตโนมัติ
-(ทั้งเมื่อรันผ่าน Docker และเมื่อรัน `npm run db:seed` เอง):
+ฐานข้อมูลบน Aiven ที่ระบบเชื่อมต่ออยู่ (ทั้ง Docker และ local dev ใช้ฐานข้อมูลเดียวกัน) มีข้อมูล
+ตัวอย่างนำเข้าไว้แล้วล่วงหน้า ผ่านสคริปต์ `server/src/db/migrations/001_init.sql` (สร้างตาราง) และ
+`server/src/db/seeds/001_seed.sql` (นำเข้าข้อมูลตัวอย่าง) ได้แก่:
 
 - บัญชีเจ้าหน้าที่ทดสอบ 1 บัญชี (`staff01`)
 - ประเภททุนการศึกษา 5 ประเภทตามที่โจทย์กำหนด
 - คำขอทุนตัวอย่าง 30 รายการ กระจายครบทั้ง 5 ประเภททุน และ 3 สถานะ
   (รอพิจารณา / อนุมัติ / ไม่อนุมัติ) เพื่อสาธิตการแบ่งหน้า การค้นหา และการกรอง
+
+หากต้องการรันสคริปต์เหล่านี้ซ้ำ (เช่น ย้ายไปใช้ฐานข้อมูลอื่น) ทั้งสองสคริปต์เขียนแบบ idempotent
+สามารถรันซ้ำได้ปลอดภัยด้วย `npm run db:migrate` และ `npm run db:seed` ภายในโฟลเดอร์ `server/`
 
 ## ฟีเจอร์หลักที่พัฒนา
 
@@ -134,7 +133,9 @@ Scholarship-Request-Management-React/
 │       └── seeds/         # ข้อมูลตัวอย่าง
 ├── docs/              # เอกสารออกแบบระบบ (ER Diagram, Architecture)
 ├── docker-compose.yml
+├── .env               # connection string จริง (commit ไว้โดยตั้งใจ ดูหัวข้อด้านบน)
 ├── .env.example
+├── RUN.bat / STOP.bat # สคริปต์รัน/หยุดระบบผ่าน Docker (Windows)
 ├── PROJECT-PLAN.md    # เอกสารวิเคราะห์ความต้องการและออกแบบระบบ
 └── README.md
 ```

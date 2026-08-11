@@ -238,12 +238,13 @@ erDiagram
 `.env.example` จะระบุ key ที่ต้องใช้ (ไม่ใส่ค่าจริง) เช่น `DATABASE_URL`, `JWT_SECRET`, `PORT`,
 `CLIENT_URL` เป็นต้น
 
-> **ข้อควรระวังด้านความปลอดภัย:** โจทย์กำหนดให้ตั้ง Git Repository เป็น **Public** ดังนั้น
-> ห้าม commit connection string / password จริงของฐานข้อมูล Aiven ลง repository เด็ดขาด
-> (รวมถึงใน `.env`, `docker-compose.yml`, README หรือไฟล์ใด ๆ ที่จะถูก push) — เคยลองใช้ Aiven จริง
-> ใน `docker-compose.yml` แล้วแต่ GitHub push protection บล็อกไว้ได้ทัน (ยังไม่หลุดขึ้น remote)
-> จึงกลับมาใช้แนวทางเดิม: ให้ Aiven DB สำหรับพัฒนา/ทดสอบส่วนตัวผ่าน `.env` (gitignored) เท่านั้น
-> ส่วน docker-compose ที่ส่งมอบให้กรรมการใช้ Postgres container อิสระของตัวเอง ไม่มี credential จริง
+> **อัปเดตล่าสุด:** ผู้ใช้ยืนยันให้ commit ไฟล์ `.env` (มี connection string จริงของ Aiven) ขึ้น
+> repository โดยตั้งใจ เพื่อให้ทั้ง Docker และ local dev เชื่อมต่อฐานข้อมูลจริงได้ทันทีโดยไม่ต้อง
+> ตั้งค่าเพิ่ม — รับทราบแล้วว่า repo นี้เป็น **Public** ตามที่โจทย์กำหนด และ GitHub push protection
+> อาจบล็อกการ push ถ้าตรวจพบรูปแบบ secret ที่รู้จัก (เคยเกิดขึ้นมาก่อนตอนฝัง secret ไว้ใน
+> `docker-compose.yml` ตรง ๆ) หากเจอกรณีนี้อีก ผู้ใช้ต้องกด allow ผ่านลิงก์ที่ GitHub แจ้งมา
+> ตอน push จึงจะสำเร็จ `docker-compose.yml` เองไม่มี secret ฝังอยู่ตรง ๆ แล้ว — ใช้ `env_file: .env`
+> อ่านค่าแทน
 
 ---
 
@@ -287,8 +288,8 @@ erDiagram
 2. ฟีเจอร์เสริม (ข้อ 9 ในตาราง Phase) — ยังไม่ได้เลือก/พัฒนา (โฟกัสให้ฟีเจอร์หลักครบและใช้งานได้จริงก่อน)
 3. Deploy ออนไลน์ — **ยังไม่ทำ** ตามที่ผู้ใช้ระบุ ให้ระบบสมบูรณ์ก่อนค่อยพิจารณา
 4. Chart.js (react-chartjs-2) — **ยืนยันแล้ว** ใช้จริงในแดชบอร์ด
-5. Database ใน docker-compose — ลองเชื่อมต่อ Aiven จริงโดยตรงแล้ว แต่ GitHub push protection บล็อกไว้
-   จึงกลับมาใช้ Postgres container อิสระตามแผนเดิม (ดูหมายเหตุในข้อ 8)
+5. Database ใน docker-compose — **ยืนยันแล้ว (ครั้งที่ 2)** ให้เชื่อมต่อ Aiven จริงโดยตรงผ่าน
+   `.env` ที่ commit ขึ้น repository ตรง ๆ (ดูหมายเหตุในข้อ 8)
 
 ---
 

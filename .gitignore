@@ -1,7 +1,8 @@
 # Environment / secrets
-.env
-.env.*
-!.env.example
+# NOTE: .env is intentionally NOT ignored — this project commits it on purpose
+# (real DB connection string lives there so Docker/local dev work with zero setup).
+.env.local
+.env.*.local
 
 # Dependencies
 node_modules/
