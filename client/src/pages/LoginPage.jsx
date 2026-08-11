@@ -60,7 +60,7 @@ export default function LoginPage() {
                   </button>
                 </form>
                 <div className="text-center mt-3">
-                  <Link to="/request" className="small">
+                  <Link to="/" className="small">
                     &larr; กลับหน้ายื่นคำขอทุนสำหรับนักศึกษา
                   </Link>
                 </div>

@@ -15,7 +15,7 @@ export default function RequestFormPage() {
     setGeneralError('');
     try {
       const data = await submitPublicRequest(values);
-      navigate('/request/success', { state: { message: data.message, requestNo: data.item.request_no } });
+      navigate('/success', { state: { message: data.message, requestNo: data.item.request_no } });
     } catch (err) {
       setServerErrors(err.fieldErrors || []);
       setGeneralError(err.message || 'ไม่สามารถส่งคำขอทุนได้ กรุณาลองใหม่อีกครั้ง');

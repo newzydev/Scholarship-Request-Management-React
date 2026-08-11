@@ -15,11 +15,9 @@ export default function App() {
   return (
     <AuthProvider>
       <Routes>
-        <Route path="/" element={<Navigate to="/request" replace />} />
-
         <Route element={<PublicLayout />}>
-          <Route path="/request" element={<PublicRequestFormPage />} />
-          <Route path="/request/success" element={<RequestSuccessPage />} />
+          <Route path="/" element={<PublicRequestFormPage />} />
+          <Route path="/success" element={<RequestSuccessPage />} />
         </Route>
 
         <Route path="/login" element={<LoginPage />} />

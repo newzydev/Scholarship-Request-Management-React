@@ -5,7 +5,7 @@ export default function RequestSuccessPage() {
   const state = location.state;
 
   if (!state) {
-    return <Navigate to="/request" replace />;
+    return <Navigate to="/" replace />;
   }
 
   return (
@@ -18,7 +18,7 @@ export default function RequestSuccessPage() {
             <p className="text-muted mb-1">เลขที่คำขอของท่านคือ</p>
             <p className="fs-4 fw-bold mb-3">{state.requestNo}</p>
             <p className="mb-4">{state.message}</p>
-            <Link to="/request" className="btn btn-primary">
+            <Link to="/" className="btn btn-primary">
               ยื่นคำขออีกรายการ
             </Link>
           </div>

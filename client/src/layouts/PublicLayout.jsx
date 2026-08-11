@@ -5,7 +5,7 @@ export default function PublicLayout() {
     <div className="d-flex flex-column min-vh-100">
       <nav className="navbar navbar-expand navbar-dark bg-primary">
         <div className="container">
-          <Link className="navbar-brand fw-semibold" to="/request">
+          <Link className="navbar-brand fw-semibold" to="/">
             ระบบบริหารจัดการคำขอทุนการศึกษา
           </Link>
           <Link className="btn btn-outline-light btn-sm" to="/login">
