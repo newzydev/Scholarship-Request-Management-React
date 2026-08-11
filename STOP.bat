@@ -19,7 +19,7 @@ if errorlevel 1 (
 echo Stopping the system ...
 echo.
 
-docker compose down
+docker compose --progress plain --ansi never down
 if errorlevel 1 (
     echo.
     echo [ERROR] Something went wrong while stopping the system. See the messages above.
@@ -31,10 +31,8 @@ if errorlevel 1 (
 echo.
 echo ============================================
 echo   The system has been stopped.
-echo   (Database data is kept. Run RUN.bat to start again.)
-echo.
-echo   Tip: to also erase the sample database data,
-echo   run this manually:  docker compose down -v
+echo   (The database lives on Aiven Cloud, so your data is safe either way.)
+echo   Run RUN.bat any time to start the system again.
 echo ============================================
 echo.
 
