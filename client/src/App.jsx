@@ -10,6 +10,8 @@ import RequestSuccessPage from './pages/public/RequestSuccessPage';
 import DashboardPage from './pages/admin/DashboardPage';
 import RequestsListPage from './pages/admin/RequestsListPage';
 import AdminRequestFormPage from './pages/admin/RequestFormPage';
+import StaffListPage from './pages/admin/StaffListPage';
+import StaffFormPage from './pages/admin/StaffFormPage';
 
 export default function App() {
   return (
@@ -35,6 +37,9 @@ export default function App() {
           <Route path="requests" element={<RequestsListPage />} />
           <Route path="requests/new" element={<AdminRequestFormPage />} />
           <Route path="requests/:id/edit" element={<AdminRequestFormPage />} />
+          <Route path="staff" element={<StaffListPage />} />
+          <Route path="staff/new" element={<StaffFormPage />} />
+          <Route path="staff/:id/edit" element={<StaffFormPage />} />
         </Route>
 
         <Route path="*" element={<NotFoundPage />} />

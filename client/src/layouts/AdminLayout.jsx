@@ -5,11 +5,13 @@ import ThemeToggle from '../components/ThemeToggle';
 const NAV_ITEMS = [
   { to: '/admin/dashboard', label: 'แดชบอร์ด', icon: 'bi-speedometer2' },
   { to: '/admin/requests', label: 'รายการคำขอทุน', icon: 'bi-card-list' },
+  { to: '/admin/staff', label: 'จัดการเจ้าหน้าที่', icon: 'bi-people-fill' },
 ];
 
 const PAGE_TITLES = {
   '/admin/dashboard': 'แดชบอร์ดสรุปภาพรวมคำขอทุน',
   '/admin/requests': 'รายการคำขอทุนการศึกษา',
+  '/admin/staff': 'จัดการเจ้าหน้าที่',
 };
 
 const closeSidebarOnMobile = () => document.body.classList.remove('sidebar-open');
@@ -26,7 +28,9 @@ export default function AdminLayout() {
 
   const pageTitle =
     PAGE_TITLES[location.pathname] ||
-    (location.pathname.startsWith('/admin/requests') ? 'จัดการคำขอทุนการศึกษา' : 'ระบบจัดการทุนการศึกษา');
+    (location.pathname.startsWith('/admin/requests') && 'จัดการคำขอทุนการศึกษา') ||
+    (location.pathname.startsWith('/admin/staff') && 'จัดการเจ้าหน้าที่') ||
+    'ระบบจัดการทุนการศึกษา';
 
   return (
     <div className="app-wrapper">

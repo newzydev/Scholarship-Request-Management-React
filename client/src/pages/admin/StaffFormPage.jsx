@@ -1,0 +1,252 @@
+import { useEffect, useState } from 'react';
+import { useNavigate, useParams, Link } from 'react-router-dom';
+import ConfirmModal from '../../components/ConfirmModal';
+import { useAuth } from '../../context/AuthContext';
+import { fetchStaffById, createStaff, updateStaff, deleteStaff } from '../../api/staff';
+
+const emptyValues = {
+  first_name: '',
+  last_name: '',
+  username: '',
+  password: '',
+};
+
+export default function StaffFormPage() {
+  const { id } = useParams();
+  const isEdit = Boolean(id);
+  const navigate = useNavigate();
+  const { staff: currentStaff } = useAuth();
+
+  const [values, setValues] = useState(emptyValues);
+  const [loading, setLoading] = useState(isEdit);
+  const [submitting, setSubmitting] = useState(false);
+  const [serverErrors, setServerErrors] = useState([]);
+  const [generalError, setGeneralError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
+
+  const isSelf = isEdit && currentStaff && String(currentStaff.id) === String(id);
+
+  useEffect(() => {
+    if (!isEdit) return;
+    setLoading(true);
+    fetchStaffById(id)
+      .then((item) => setValues({ ...emptyValues, ...item, password: '' }))
+      .catch((err) => setGeneralError(err.message))
+      .finally(() => setLoading(false));
+  }, [id, isEdit]);
+
+  const errorFor = (field) => serverErrors.find((e) => e.field === field)?.message;
+  const fieldClass = (field) => `form-control${errorFor(field) ? ' is-invalid' : ''}`;
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setValues((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSubmitting(true);
+    setServerErrors([]);
+    setGeneralError('');
+    setSuccessMessage('');
+    try {
+      const payload = { first_name: values.first_name, last_name: values.last_name, username: values.username };
+      if (values.password) payload.password = values.password;
+
+      if (isEdit) {
+        const updated = await updateStaff(id, payload);
+        setValues({ ...emptyValues, ...updated, password: '' });
+        setSuccessMessage('บันทึกการเปลี่ยนแปลงเรียบร้อยแล้ว');
+      } else {
+        await createStaff(payload);
+        navigate('/admin/staff');
+      }
+    } catch (err) {
+      setServerErrors(err.fieldErrors || []);
+      setGeneralError(err.message || 'ไม่สามารถบันทึกข้อมูลได้');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    setDeleting(true);
+    setDeleteError('');
+    try {
+      await deleteStaff(id);
+      navigate('/admin/staff');
+    } catch (err) {
+      setDeleteError(err.message || 'ไม่สามารถลบบัญชีนี้ได้');
+      setShowDeleteModal(false);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="d-flex justify-content-center py-5">
+        <div className="spinner-border text-primary" role="status" />
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      {deleteError && <div className="alert alert-danger">{deleteError}</div>}
+
+      <div className="row g-3">
+        <div className="col-lg-8">
+          <div className="card card-primary card-outline">
+            <div className="card-header">
+              <h3 className="card-title">
+                {isEdit ? (
+                  <>
+                    <i className="bi bi-pencil-square me-2" aria-hidden="true"></i>
+                    แก้ไขบัญชีเจ้าหน้าที่ {values.username}
+                  </>
+                ) : (
+                  <>
+                    <i className="bi bi-person-plus-fill me-2" aria-hidden="true"></i>
+                    เพิ่มเจ้าหน้าที่ใหม่
+                  </>
+                )}
+              </h3>
+              <div className="card-tools">
+                <Link to="/admin/staff" className="btn btn-outline-secondary btn-sm">
+                  <i className="bi bi-arrow-left me-1" aria-hidden="true"></i>
+                  กลับไปยังรายการ
+                </Link>
+              </div>
+            </div>
+            <div className="card-body">
+              {generalError && <div className="alert alert-danger">{generalError}</div>}
+              {successMessage && <div className="alert alert-success">{successMessage}</div>}
+
+              <form onSubmit={handleSubmit} noValidate autoComplete="off">
+                <div className="row g-3">
+                  <div className="col-md-6">
+                    <label className="form-label">ชื่อ *</label>
+                    <input
+                      type="text"
+                      name="first_name"
+                      className={fieldClass('first_name')}
+                      placeholder="กรอกชื่อ"
+                      value={values.first_name}
+                      onChange={handleChange}
+                      required
+                      autoComplete="off"
+                    />
+                    {errorFor('first_name') && (
+                      <div className="invalid-feedback">{errorFor('first_name')}</div>
+                    )}
+                  </div>
+                  <div className="col-md-6">
+                    <label className="form-label">นามสกุล *</label>
+                    <input
+                      type="text"
+                      name="last_name"
+                      className={fieldClass('last_name')}
+                      placeholder="กรอกนามสกุล"
+                      value={values.last_name}
+                      onChange={handleChange}
+                      required
+                      autoComplete="off"
+                    />
+                    {errorFor('last_name') && (
+                      <div className="invalid-feedback">{errorFor('last_name')}</div>
+                    )}
+                  </div>
+                  <div className="col-md-6">
+                    <label className="form-label">ชื่อผู้ใช้ *</label>
+                    <input
+                      type="text"
+                      name="username"
+                      className={fieldClass('username')}
+                      placeholder="เช่น staff02"
+                      value={values.username}
+                      onChange={handleChange}
+                      required
+                      autoComplete="off"
+                    />
+                    {errorFor('username') && <div className="invalid-feedback">{errorFor('username')}</div>}
+                  </div>
+                  <div className="col-md-6">
+                    <label className="form-label">
+                      {isEdit ? 'รหัสผ่านใหม่' : 'รหัสผ่าน *'}
+                    </label>
+                    <input
+                      type="password"
+                      name="password"
+                      className={fieldClass('password')}
+                      placeholder={isEdit ? 'เว้นว่างไว้หากไม่ต้องการเปลี่ยน' : 'อย่างน้อย 6 ตัวอักษร'}
+                      value={values.password}
+                      onChange={handleChange}
+                      required={!isEdit}
+                      autoComplete="off"
+                    />
+                    {errorFor('password') && <div className="invalid-feedback">{errorFor('password')}</div>}
+                  </div>
+                </div>
+
+                <div className="d-flex gap-2 mt-4">
+                  <button type="submit" className="btn btn-primary" disabled={submitting}>
+                    {submitting ? 'กำลังบันทึก...' : isEdit ? 'บันทึกการเปลี่ยนแปลง' : 'บันทึก'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        {isEdit && (
+          <div className="col-lg-4">
+            <div className="card card-outline card-danger">
+              <div className="card-header">
+                <h3 className="card-title text-danger">
+                  <i className="bi bi-trash3 me-2" aria-hidden="true"></i>
+                  ลบบัญชีเจ้าหน้าที่
+                </h3>
+              </div>
+              <div className="card-body">
+                {isSelf ? (
+                  <p className="small text-secondary mb-0">
+                    ไม่สามารถลบบัญชีของตนเองที่กำลังใช้งานอยู่ได้
+                  </p>
+                ) : (
+                  <>
+                    <p className="small text-secondary">
+                      บัญชีที่ถูกลบจะไม่สามารถเข้าสู่ระบบได้อีก แต่ประวัติคำขอทุนที่เคยดำเนินการไว้จะยังคงอยู่
+                    </p>
+                    <button
+                      className="btn btn-outline-danger btn-sm w-100"
+                      onClick={() => setShowDeleteModal(true)}
+                    >
+                      <i className="bi bi-trash3 me-1" aria-hidden="true"></i>
+                      ลบบัญชีนี้
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <ConfirmModal
+        show={showDeleteModal}
+        title="ยืนยันการลบบัญชีเจ้าหน้าที่"
+        message={`ต้องการลบบัญชีเจ้าหน้าที่ "${values.username}" ใช่หรือไม่? การดำเนินการนี้ไม่สามารถยกเลิกได้`}
+        confirmText="ลบบัญชี"
+        confirmVariant="danger"
+        busy={deleting}
+        onConfirm={handleDelete}
+        onCancel={() => setShowDeleteModal(false)}
+      />
+    </div>
+  );
+}
