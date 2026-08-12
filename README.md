@@ -111,6 +111,26 @@ docker compose up --build
 หากต้องการรันสคริปต์เหล่านี้ซ้ำ (เช่น ย้ายไปใช้ฐานข้อมูลอื่น) ทั้งสองสคริปต์เขียนแบบ idempotent
 สามารถรันซ้ำได้ปลอดภัยด้วย `npm run db:migrate` และ `npm run db:seed` ภายในโฟลเดอร์ `server/`
 
+## Deploy ขึ้นออนไลน์ฟรี (ไม่บังคับ)
+
+โปรเจกต์นี้มี [`Dockerfile`](Dockerfile) แยกต่างหากที่ root ของ repo ซึ่งรวม frontend (React build)
+เข้ากับ backend (Express) เป็น container เดียว serve ผ่านพอร์ตเดียวกัน (ไม่ต้องมี nginx แยก
+ไม่มีปัญหา CORS/cookie ข้าม domain) เหมาะสำหรับ deploy ฟรีบน [Render](https://render.com):
+
+1. สมัคร/ล็อกอิน Render ด้วยบัญชี GitHub
+2. New + → **Web Service** → เลือก repo นี้
+3. ตั้งค่า: Branch = `main`, Runtime = **Docker** (Render จะเจอ `Dockerfile` ที่ root เอง),
+   Instance Type = **Free**
+4. เพิ่ม Environment Variables (คัดลอกค่าจากไฟล์ `.env` ในเครื่อง): `DATABASE_URL`, `JWT_SECRET`,
+   `JWT_EXPIRES_IN`, `NODE_ENV=production` (ไม่ต้องตั้งค่า `PORT` เอง Render จัดการให้อัตโนมัติ)
+5. กด **Create Web Service** — build และ deploy ครั้งแรกเสร็จแล้วจะได้ลิงก์ฟรีทันที
+   เช่น `https://ชื่อที่ตั้ง.onrender.com` (มี HTTPS ให้อัตโนมัติ)
+6. ตั้งแต่นั้น **ทุกครั้งที่ `git push` ขึ้น branch `main` ระบบจะ deploy ให้อัตโนมัติ**
+
+> หมายเหตุ: แพลนฟรีของ Render จะ sleep เมื่อไม่มีคนใช้งานเกิน 15 นาที การเข้าใช้งานครั้งแรก
+> หลังจากนั้นจะช้ากว่าปกติ (cold start ~30-60 วินาที) เหมาะสำหรับการสาธิต/ใช้สอบเท่านั้น
+> หากต้องสาธิตแบบมีกำหนดเวลา แนะนำเข้าเว็บล่วงหน้าสัก 1-2 นาทีเพื่อ "ปลุก" เซิร์ฟเวอร์ก่อน
+
 ## ฟีเจอร์หลักที่พัฒนา
 
 - **หน้ายื่นคำขอทุน (สาธารณะ)** — นักศึกษายื่นคำขอได้โดยไม่ต้องเข้าสู่ระบบ พร้อมตรวจสอบข้อมูล
@@ -151,7 +171,8 @@ Scholarship-Request-Management-React/
 │       ├── migrations/   # SQL schema (idempotent)
 │       └── seeds/         # ข้อมูลตัวอย่าง
 ├── docs/              # เอกสารออกแบบระบบ (ER Diagram, Architecture)
-├── docker-compose.yml
+├── docker-compose.yml # local dev/grading (nginx + server แยก container)
+├── Dockerfile         # combined build สำหรับ deploy ฟรีบน Render (ดูหัวข้อด้านบน)
 ├── .env               # connection string จริง (commit ไว้โดยตั้งใจ ดูหัวข้อด้านบน)
 ├── .env.example
 ├── RUN.bat            # รันระบบด้วย Docker (Windows, ดับเบิลคลิกได้)
