@@ -8,6 +8,10 @@
 เอกสารการวิเคราะห์ความต้องการและออกแบบระบบแบบละเอียดอยู่ใน [`PROJECT-PLAN.md`](PROJECT-PLAN.md)
 และเอกสารออกแบบเพิ่มเติม (ER Diagram, System Architecture) อยู่ในโฟลเดอร์ [`docs/`](docs)
 
+> **🌐 ทดลองใช้งานออนไลน์ได้ที่:** https://scholarship-request-management-react.onrender.com
+> (deploy จริงบน Render, auto-deploy ทุกครั้งที่ push ขึ้น branch `main` — ดูรายละเอียดในหัวข้อ
+> [Deploy ขึ้นออนไลน์](#deploy-ขึ้นออนไลน์))
+
 ## เทคโนโลยีที่ใช้
 
 | ส่วน | เทคโนโลยี |
@@ -16,7 +20,8 @@
 | Backend | Node.js, Express 5 (RESTful API) |
 | Database | PostgreSQL (Aiven Cloud) |
 | Auth | JWT (httpOnly cookie) + bcrypt |
-| Container | Docker, Docker Compose, Nginx (reverse proxy + serve static build) |
+| Container | Docker (Docker Compose + Nginx สำหรับ local, combined image เดียวสำหรับ Deploy) |
+| Deploy | [Render](https://render.com) (auto-deploy จาก GitHub `main`) |
 
 โครงสร้างโปรเจกต์แบ่งเป็น `client/` (React) และ `server/` (Express API) อยู่ใน Repository เดียวกัน
 
@@ -111,25 +116,39 @@ docker compose up --build
 หากต้องการรันสคริปต์เหล่านี้ซ้ำ (เช่น ย้ายไปใช้ฐานข้อมูลอื่น) ทั้งสองสคริปต์เขียนแบบ idempotent
 สามารถรันซ้ำได้ปลอดภัยด้วย `npm run db:migrate` และ `npm run db:seed` ภายในโฟลเดอร์ `server/`
 
-## Deploy ขึ้นออนไลน์ฟรี (ไม่บังคับ)
+## Deploy ขึ้นออนไลน์
+
+**สถานะปัจจุบัน:** ระบบ deploy จริงแล้วบน [Render](https://render.com) ที่
+**https://scholarship-request-management-react.onrender.com** (แพลน **Starter** — รันตลอด
+24 ชม. ไม่มี cold start/sleep) เชื่อมต่อฐานข้อมูลจริงตัวเดียวกับที่ใช้พัฒนา (Aiven) และตั้งค่า
+**auto-deploy ทุกครั้งที่ `git push` ขึ้น branch `main`** ไว้แล้ว — ไม่ต้องทำอะไรเพิ่มเพื่ออัปเดตเว็บ
+แค่ push โค้ดตามปกติ
 
 โปรเจกต์นี้มี [`Dockerfile`](Dockerfile) แยกต่างหากที่ root ของ repo ซึ่งรวม frontend (React build)
 เข้ากับ backend (Express) เป็น container เดียว serve ผ่านพอร์ตเดียวกัน (ไม่ต้องมี nginx แยก
-ไม่มีปัญหา CORS/cookie ข้าม domain) เหมาะสำหรับ deploy ฟรีบน [Render](https://render.com):
+ไม่มีปัญหา CORS/cookie ข้าม domain) — เป็นไฟล์ที่ใช้ deploy บน Render จริง (แยกจาก
+`docker-compose.yml` ที่ใช้รัน local/สอบ ซึ่งไม่กระทบกัน)
+
+<details>
+<summary>ขั้นตอนตั้งค่าบน Render (สำหรับอ้างอิง/ทำซ้ำ เช่น ย้ายไป account อื่น)</summary>
 
 1. สมัคร/ล็อกอิน Render ด้วยบัญชี GitHub
 2. New + → **Web Service** → เลือก repo นี้
 3. ตั้งค่า: Branch = `main`, Runtime = **Docker** (Render จะเจอ `Dockerfile` ที่ root เอง),
-   Instance Type = **Free**
+   เลือก Instance Type ตามต้องการ (**Free** สำหรับใช้ชั่วคราว หรือ **Starter** ขึ้นไปถ้าต้องการรัน
+   ตลอดเวลาไม่มี sleep)
 4. เพิ่ม Environment Variables (คัดลอกค่าจากไฟล์ `.env` ในเครื่อง): `DATABASE_URL`, `JWT_SECRET`,
-   `JWT_EXPIRES_IN`, `NODE_ENV=production` (ไม่ต้องตั้งค่า `PORT` เอง Render จัดการให้อัตโนมัติ)
-5. กด **Create Web Service** — build และ deploy ครั้งแรกเสร็จแล้วจะได้ลิงก์ฟรีทันที
+   `JWT_EXPIRES_IN` (**ห้าม** เพิ่ม `PORT` เอง ปล่อยให้ Render จัดการอัตโนมัติ ส่วน `NODE_ENV=production`
+   ตั้งไว้ใน `Dockerfile` แล้วไม่ต้องเพิ่มซ้ำ)
+5. กด **Create Web Service** — build และ deploy ครั้งแรกเสร็จแล้วจะได้ลิงก์ทันที
    เช่น `https://ชื่อที่ตั้ง.onrender.com` (มี HTTPS ให้อัตโนมัติ)
 6. ตั้งแต่นั้น **ทุกครั้งที่ `git push` ขึ้น branch `main` ระบบจะ deploy ให้อัตโนมัติ**
 
-> หมายเหตุ: แพลนฟรีของ Render จะ sleep เมื่อไม่มีคนใช้งานเกิน 15 นาที การเข้าใช้งานครั้งแรก
-> หลังจากนั้นจะช้ากว่าปกติ (cold start ~30-60 วินาที) เหมาะสำหรับการสาธิต/ใช้สอบเท่านั้น
-> หากต้องสาธิตแบบมีกำหนดเวลา แนะนำเข้าเว็บล่วงหน้าสัก 1-2 นาทีเพื่อ "ปลุก" เซิร์ฟเวอร์ก่อน
+> หมายเหตุ: แพลน **Free** ของ Render จะ sleep เมื่อไม่มีคนใช้งานเกิน 15 นาที การเข้าใช้งานครั้งแรก
+> หลังจากนั้นจะช้ากว่าปกติ (cold start ~30-60 วินาที) — สลับ Free ↔ Starter ทีหลังได้ตลอดผ่าน
+> Settings → Instance Type ของ service (ไม่ใช่ข้อจำกัดถาวร)
+
+</details>
 
 ## ฟีเจอร์หลักที่พัฒนา
 
