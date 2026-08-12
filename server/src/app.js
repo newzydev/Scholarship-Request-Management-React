@@ -17,7 +17,14 @@ import { notFoundHandler, errorHandler } from './middlewares/errorHandler.js';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 
-app.use(helmet({ contentSecurityPolicy: false }));
+app.use(helmet());
+app.use((req, res, next) => {
+  res.setHeader(
+    'Permissions-Policy',
+    'camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=(), fullscreen=(self)'
+  );
+  next();
+});
 app.use(cors({ origin: env.clientUrl, credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
