@@ -50,20 +50,18 @@ export default function ScholarshipRequestForm({
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit({
-      ...values,
-      year_level: Number(values.year_level),
-      gpax: Number(values.gpax),
-      scholarship_type_id: Number(values.scholarship_type_id),
-      amount_requested: Number(values.amount_requested),
-    });
+    // Send raw string values as-is (including empty strings for untouched fields) so
+    // server-side validation correctly rejects blanks. Converting with Number('') would
+    // silently turn a blank field into 0, which slips past min:0 checks like gpax and
+    // produces the wrong error message for an unselected scholarship type.
+    onSubmit(values);
   };
 
   const fieldClass = (field) => `form-control${errorFor(field) ? ' is-invalid' : ''}`;
   const selectClass = (field) => `form-select${errorFor(field) ? ' is-invalid' : ''}`;
 
   return (
-    <form onSubmit={handleSubmit} noValidate>
+    <form onSubmit={handleSubmit} noValidate autoComplete="off">
       <div className="row g-3">
         <div className="col-md-4">
           <label className="form-label">รหัสนักศึกษา *</label>
@@ -71,9 +69,11 @@ export default function ScholarshipRequestForm({
             type="text"
             name="student_id"
             className={fieldClass('student_id')}
+            placeholder="เช่น 6410110001"
             value={values.student_id}
             onChange={handleChange}
             required
+            autoComplete="off"
           />
           {errorFor('student_id') && <div className="invalid-feedback">{errorFor('student_id')}</div>}
         </div>
@@ -83,9 +83,11 @@ export default function ScholarshipRequestForm({
             type="text"
             name="first_name"
             className={fieldClass('first_name')}
+            placeholder="กรอกชื่อ"
             value={values.first_name}
             onChange={handleChange}
             required
+            autoComplete="off"
           />
           {errorFor('first_name') && <div className="invalid-feedback">{errorFor('first_name')}</div>}
         </div>
@@ -95,9 +97,11 @@ export default function ScholarshipRequestForm({
             type="text"
             name="last_name"
             className={fieldClass('last_name')}
+            placeholder="กรอกนามสกุล"
             value={values.last_name}
             onChange={handleChange}
             required
+            autoComplete="off"
           />
           {errorFor('last_name') && <div className="invalid-feedback">{errorFor('last_name')}</div>}
         </div>
@@ -108,9 +112,11 @@ export default function ScholarshipRequestForm({
             type="text"
             name="faculty"
             className={fieldClass('faculty')}
+            placeholder="เช่น คณะวิศวกรรมศาสตร์"
             value={values.faculty}
             onChange={handleChange}
             required
+            autoComplete="off"
           />
           {errorFor('faculty') && <div className="invalid-feedback">{errorFor('faculty')}</div>}
         </div>
@@ -122,9 +128,11 @@ export default function ScholarshipRequestForm({
             min="1"
             max="8"
             className={fieldClass('year_level')}
+            placeholder="เช่น 1"
             value={values.year_level}
             onChange={handleChange}
             required
+            autoComplete="off"
           />
           {errorFor('year_level') && <div className="invalid-feedback">{errorFor('year_level')}</div>}
         </div>
@@ -137,9 +145,11 @@ export default function ScholarshipRequestForm({
             max="4"
             name="gpax"
             className={fieldClass('gpax')}
+            placeholder="เช่น 3.50"
             value={values.gpax}
             onChange={handleChange}
             required
+            autoComplete="off"
           />
           {errorFor('gpax') && <div className="invalid-feedback">{errorFor('gpax')}</div>}
         </div>
@@ -150,9 +160,11 @@ export default function ScholarshipRequestForm({
             type="email"
             name="email"
             className={fieldClass('email')}
+            placeholder="เช่น example@psu.ac.th"
             value={values.email}
             onChange={handleChange}
             required
+            autoComplete="off"
           />
           {errorFor('email') && <div className="invalid-feedback">{errorFor('email')}</div>}
         </div>
@@ -165,6 +177,7 @@ export default function ScholarshipRequestForm({
             onChange={handleChange}
             required
             disabled={loadingTypes}
+            autoComplete="off"
           >
             <option value="">-- เลือกประเภททุน --</option>
             {types.map((t) => (
@@ -186,9 +199,11 @@ export default function ScholarshipRequestForm({
             min="0.01"
             name="amount_requested"
             className={fieldClass('amount_requested')}
+            placeholder="เช่น 10000"
             value={values.amount_requested}
             onChange={handleChange}
             required
+            autoComplete="off"
           />
           {errorFor('amount_requested') && (
             <div className="invalid-feedback">{errorFor('amount_requested')}</div>
@@ -200,9 +215,11 @@ export default function ScholarshipRequestForm({
             type="text"
             name="bank_account_no"
             className={fieldClass('bank_account_no')}
+            placeholder="กรอกเลขที่บัญชีธนาคาร"
             value={values.bank_account_no}
             onChange={handleChange}
             required
+            autoComplete="off"
           />
           {errorFor('bank_account_no') && (
             <div className="invalid-feedback">{errorFor('bank_account_no')}</div>
@@ -215,9 +232,11 @@ export default function ScholarshipRequestForm({
             name="reason"
             rows="3"
             className={fieldClass('reason')}
+            placeholder="อธิบายเหตุผลและความจำเป็นในการขอทุนการศึกษา"
             value={values.reason}
             onChange={handleChange}
             required
+            autoComplete="off"
           />
           {errorFor('reason') && <div className="invalid-feedback">{errorFor('reason')}</div>}
         </div>

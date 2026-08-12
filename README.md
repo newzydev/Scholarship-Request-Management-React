@@ -12,7 +12,7 @@
 
 | ส่วน | เทคโนโลยี |
 |---|---|
-| Frontend | React 19 (Vite), React Router, Bootstrap 5, Chart.js / react-chartjs-2, Axios |
+| Frontend | React 19 (Vite), React Router, AdminLTE 4 (Bootstrap 5), Chart.js / react-chartjs-2, Axios |
 | Backend | Node.js, Express 5 (RESTful API) |
 | Database | PostgreSQL (Aiven Cloud) |
 | Auth | JWT (httpOnly cookie) + bcrypt |

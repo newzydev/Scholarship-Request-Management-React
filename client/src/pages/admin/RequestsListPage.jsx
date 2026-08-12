@@ -44,15 +44,23 @@ export default function RequestsListPage() {
 
   return (
     <div>
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <h4 className="mb-0">รายการคำขอทุนการศึกษา</h4>
-        <Link to="/admin/requests/new" className="btn btn-primary">
-          + เพิ่มคำขอทุน
-        </Link>
-      </div>
+      {error && <div className="alert alert-danger">{error}</div>}
 
-      <div className="card shadow-sm mb-3">
-        <div className="card-body">
+      <div className="card card-primary card-outline">
+        <div className="card-header">
+          <h3 className="card-title">
+            <i className="bi bi-card-list me-2" aria-hidden="true"></i>
+            รายการคำขอทุนการศึกษา
+          </h3>
+          <div className="card-tools">
+            <Link to="/admin/requests/new" className="btn btn-primary btn-sm">
+              <i className="bi bi-plus-lg me-1" aria-hidden="true"></i>
+              เพิ่มคำขอทุน
+            </Link>
+          </div>
+        </div>
+
+        <div className="card-body border-bottom">
           <div className="row g-2 align-items-end">
             <div className="col-md-5">
               <form onSubmit={handleSearchSubmit} className="d-flex gap-2">
@@ -62,9 +70,10 @@ export default function RequestsListPage() {
                   placeholder="ค้นหาชื่อหรือรหัสนักศึกษา..."
                   value={searchInput}
                   onChange={(e) => setSearchInput(e.target.value)}
+                  autoComplete="off"
                 />
                 <button type="submit" className="btn btn-outline-secondary">
-                  ค้นหา
+                  <i className="bi bi-search" aria-hidden="true"></i>
                 </button>
               </form>
             </div>
@@ -76,6 +85,7 @@ export default function RequestsListPage() {
                   setStatus(e.target.value);
                   setPage(1);
                 }}
+                autoComplete="off"
               >
                 <option value="">ทุกสถานะ</option>
                 {Object.entries(STATUS_LABELS).map(([value, label]) => (
@@ -93,6 +103,7 @@ export default function RequestsListPage() {
                   setType(e.target.value);
                   setPage(1);
                 }}
+                autoComplete="off"
               >
                 <option value="">ทุกประเภททุน</option>
                 {types.map((t) => (
@@ -104,65 +115,67 @@ export default function RequestsListPage() {
             </div>
           </div>
         </div>
-      </div>
 
-      {error && <div className="alert alert-danger">{error}</div>}
-
-      <div className="card shadow-sm">
-        <div className="table-responsive">
-          <table className="table table-hover align-middle mb-0">
-            <thead className="table-light">
-              <tr>
-                <th>เลขที่คำขอ</th>
-                <th>ชื่อ-รหัสนักศึกษา</th>
-                <th>ประเภททุน</th>
-                <th className="text-end">จำนวนเงินที่ขอ</th>
-                <th>สถานะ</th>
-                <th>วันที่ยื่น</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading && (
+        <div className="card-body p-0">
+          <div className="table-responsive">
+            <table className="table table-hover align-middle mb-0">
+              <thead>
                 <tr>
-                  <td colSpan={7} className="text-center py-4 text-muted">
-                    กำลังโหลดข้อมูล...
-                  </td>
+                  <th>เลขที่คำขอ</th>
+                  <th>ชื่อ-รหัสนักศึกษา</th>
+                  <th>ประเภททุน</th>
+                  <th className="text-end">จำนวนเงินที่ขอ</th>
+                  <th>สถานะ</th>
+                  <th>วันที่ยื่น</th>
+                  <th></th>
                 </tr>
-              )}
-              {!loading && data.items.length === 0 && (
-                <tr>
-                  <td colSpan={7} className="text-center py-4 text-muted">
-                    ไม่พบรายการคำขอทุน
-                  </td>
-                </tr>
-              )}
-              {!loading &&
-                data.items.map((item) => (
-                  <tr key={item.id}>
-                    <td className="fw-semibold">{item.request_no}</td>
-                    <td>
-                      {item.first_name} {item.last_name}
-                      <div className="text-muted small">{item.student_id}</div>
-                    </td>
-                    <td>{item.scholarship_type_name}</td>
-                    <td className="text-end">{formatAmount(item.amount_requested)}</td>
-                    <td>
-                      <StatusBadge status={item.status} />
-                    </td>
-                    <td>{formatDate(item.submitted_at)}</td>
-                    <td className="text-end">
-                      <Link to={`/admin/requests/${item.id}/edit`} className="btn btn-sm btn-outline-primary">
-                        แก้ไข
-                      </Link>
+              </thead>
+              <tbody>
+                {loading && (
+                  <tr>
+                    <td colSpan={7} className="text-center py-4 text-secondary">
+                      กำลังโหลดข้อมูล...
                     </td>
                   </tr>
-                ))}
-            </tbody>
-          </table>
+                )}
+                {!loading && data.items.length === 0 && (
+                  <tr>
+                    <td colSpan={7} className="text-center py-4 text-secondary">
+                      ไม่พบรายการคำขอทุน
+                    </td>
+                  </tr>
+                )}
+                {!loading &&
+                  data.items.map((item) => (
+                    <tr key={item.id}>
+                      <td className="fw-semibold">{item.request_no}</td>
+                      <td>
+                        {item.first_name} {item.last_name}
+                        <div className="text-secondary small">{item.student_id}</div>
+                      </td>
+                      <td>{item.scholarship_type_name}</td>
+                      <td className="text-end">{formatAmount(item.amount_requested)}</td>
+                      <td>
+                        <StatusBadge status={item.status} />
+                      </td>
+                      <td>{formatDate(item.submitted_at)}</td>
+                      <td className="text-end">
+                        <Link
+                          to={`/admin/requests/${item.id}/edit`}
+                          className="btn btn-sm btn-outline-primary"
+                        >
+                          <i className="bi bi-pencil-square me-1" aria-hidden="true"></i>
+                          แก้ไข
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          </div>
         </div>
         <div className="card-footer d-flex justify-content-between align-items-center">
-          <span className="text-muted small">ทั้งหมด {data.total} รายการ</span>
+          <span className="text-secondary small">ทั้งหมด {data.total} รายการ</span>
           <Pagination page={data.page} totalPages={data.totalPages} onChange={setPage} />
         </div>
       </div>

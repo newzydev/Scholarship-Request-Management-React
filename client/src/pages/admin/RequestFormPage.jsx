@@ -110,19 +110,33 @@ export default function RequestFormPage() {
 
   return (
     <div>
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <h4 className="mb-0">{isEdit ? `แก้ไขคำขอทุน ${initialValues?.request_no || ''}` : 'เพิ่มคำขอทุนใหม่'}</h4>
-        <Link to="/admin/requests" className="btn btn-outline-secondary btn-sm">
-          &larr; กลับไปยังรายการ
-        </Link>
-      </div>
-
       {deleteError && <div className="alert alert-danger">{deleteError}</div>}
 
       <div className="row g-3">
         <div className="col-lg-8">
-          <div className="card shadow-sm">
-            <div className="card-body p-4">
+          <div className="card card-primary card-outline">
+            <div className="card-header">
+              <h3 className="card-title">
+                {isEdit ? (
+                  <>
+                    <i className="bi bi-pencil-square me-2" aria-hidden="true"></i>
+                    แก้ไขคำขอทุน {initialValues?.request_no || ''}
+                  </>
+                ) : (
+                  <>
+                    <i className="bi bi-plus-circle me-2" aria-hidden="true"></i>
+                    เพิ่มคำขอทุนใหม่
+                  </>
+                )}
+              </h3>
+              <div className="card-tools">
+                <Link to="/admin/requests" className="btn btn-outline-secondary btn-sm">
+                  <i className="bi bi-arrow-left me-1" aria-hidden="true"></i>
+                  กลับไปยังรายการ
+                </Link>
+              </div>
+            </div>
+            <div className="card-body">
               {generalError && <div className="alert alert-danger">{generalError}</div>}
               {successMessage && <div className="alert alert-success">{successMessage}</div>}
               <ScholarshipRequestForm
@@ -139,9 +153,14 @@ export default function RequestFormPage() {
 
         {isEdit && (
           <div className="col-lg-4">
-            <div className="card shadow-sm mb-3">
+            <div className="card card-outline mb-3">
+              <div className="card-header">
+                <h3 className="card-title">
+                  <i className="bi bi-flag me-2" aria-hidden="true"></i>
+                  สถานะปัจจุบัน
+                </h3>
+              </div>
               <div className="card-body">
-                <h6 className="card-title">สถานะปัจจุบัน</h6>
                 <StatusBadge status={initialValues.status} />
                 <hr />
                 {statusError && <div className="alert alert-danger py-2">{statusError}</div>}
@@ -152,6 +171,7 @@ export default function RequestFormPage() {
                       className="form-select form-select-sm"
                       value={statusValue}
                       onChange={(e) => setStatusValue(e.target.value)}
+                      autoComplete="off"
                     >
                       {Object.entries(STATUS_LABELS).map(([value, label]) => (
                         <option key={value} value={value}>
@@ -165,21 +185,32 @@ export default function RequestFormPage() {
                     <textarea
                       className="form-control form-control-sm"
                       rows="2"
+                      placeholder="ระบุหมายเหตุ (ถ้ามี)"
                       value={statusNote}
                       onChange={(e) => setStatusNote(e.target.value)}
+                      autoComplete="off"
                     />
                   </div>
-                  <button type="submit" className="btn btn-sm btn-primary w-100" disabled={statusSubmitting}>
+                  <button
+                    type="submit"
+                    className="btn btn-sm btn-primary w-100"
+                    disabled={statusSubmitting}
+                  >
                     {statusSubmitting ? 'กำลังบันทึก...' : 'บันทึกสถานะ'}
                   </button>
                 </form>
               </div>
             </div>
 
-            <div className="card shadow-sm border-danger-subtle">
+            <div className="card card-outline card-danger">
+              <div className="card-header">
+                <h3 className="card-title text-danger">
+                  <i className="bi bi-trash3 me-2" aria-hidden="true"></i>
+                  ลบคำขอทุน
+                </h3>
+              </div>
               <div className="card-body">
-                <h6 className="card-title text-danger">ลบคำขอทุน</h6>
-                <p className="small text-muted">
+                <p className="small text-secondary">
                   ลบได้เฉพาะคำขอที่อยู่ในสถานะ &quot;รอพิจารณา&quot; เท่านั้น และเป็นการลบแบบ Soft Delete
                 </p>
                 <button
@@ -187,6 +218,7 @@ export default function RequestFormPage() {
                   disabled={initialValues.status !== 'pending'}
                   onClick={() => setShowDeleteModal(true)}
                 >
+                  <i className="bi bi-trash3 me-1" aria-hidden="true"></i>
                   ลบคำขอนี้
                 </button>
               </div>
