@@ -24,6 +24,7 @@ export default function ScholarshipRequestForm({
   submitting = false,
   serverErrors = [],
   extraActions = null,
+  readOnly = false,
 }) {
   const [values, setValues] = useState({ ...emptyValues, ...initialValues });
   const [types, setTypes] = useState([]);
@@ -74,6 +75,7 @@ export default function ScholarshipRequestForm({
             onChange={handleChange}
             required
             autoComplete="off"
+            disabled={readOnly}
           />
           {errorFor('student_id') && <div className="invalid-feedback">{errorFor('student_id')}</div>}
         </div>
@@ -88,6 +90,7 @@ export default function ScholarshipRequestForm({
             onChange={handleChange}
             required
             autoComplete="off"
+            disabled={readOnly}
           />
           {errorFor('first_name') && <div className="invalid-feedback">{errorFor('first_name')}</div>}
         </div>
@@ -102,6 +105,7 @@ export default function ScholarshipRequestForm({
             onChange={handleChange}
             required
             autoComplete="off"
+            disabled={readOnly}
           />
           {errorFor('last_name') && <div className="invalid-feedback">{errorFor('last_name')}</div>}
         </div>
@@ -117,6 +121,7 @@ export default function ScholarshipRequestForm({
             onChange={handleChange}
             required
             autoComplete="off"
+            disabled={readOnly}
           />
           {errorFor('faculty') && <div className="invalid-feedback">{errorFor('faculty')}</div>}
         </div>
@@ -133,6 +138,7 @@ export default function ScholarshipRequestForm({
             onChange={handleChange}
             required
             autoComplete="off"
+            disabled={readOnly}
           />
           {errorFor('year_level') && <div className="invalid-feedback">{errorFor('year_level')}</div>}
         </div>
@@ -150,6 +156,7 @@ export default function ScholarshipRequestForm({
             onChange={handleChange}
             required
             autoComplete="off"
+            disabled={readOnly}
           />
           {errorFor('gpax') && <div className="invalid-feedback">{errorFor('gpax')}</div>}
         </div>
@@ -165,6 +172,7 @@ export default function ScholarshipRequestForm({
             onChange={handleChange}
             required
             autoComplete="off"
+            disabled={readOnly}
           />
           {errorFor('email') && <div className="invalid-feedback">{errorFor('email')}</div>}
         </div>
@@ -176,7 +184,7 @@ export default function ScholarshipRequestForm({
             value={values.scholarship_type_id}
             onChange={handleChange}
             required
-            disabled={loadingTypes}
+            disabled={loadingTypes || readOnly}
             autoComplete="off"
           >
             <option value="">-- เลือกประเภททุน --</option>
@@ -204,6 +212,7 @@ export default function ScholarshipRequestForm({
             onChange={handleChange}
             required
             autoComplete="off"
+            disabled={readOnly}
           />
           {errorFor('amount_requested') && (
             <div className="invalid-feedback">{errorFor('amount_requested')}</div>
@@ -220,6 +229,7 @@ export default function ScholarshipRequestForm({
             onChange={handleChange}
             required
             autoComplete="off"
+            disabled={readOnly}
           />
           {errorFor('bank_account_no') && (
             <div className="invalid-feedback">{errorFor('bank_account_no')}</div>
@@ -237,6 +247,7 @@ export default function ScholarshipRequestForm({
             onChange={handleChange}
             required
             autoComplete="off"
+            disabled={readOnly}
           />
           {errorFor('reason') && <div className="invalid-feedback">{errorFor('reason')}</div>}
         </div>
@@ -251,6 +262,7 @@ export default function ScholarshipRequestForm({
                 className="form-check-input"
                 checked={values.pdpa_consent}
                 onChange={handleChange}
+                disabled={readOnly}
               />
               <label className="form-check-label" htmlFor="pdpa_consent">
                 ข้าพเจ้ายินยอมให้เก็บรวบรวม ใช้ และเปิดเผยข้อมูลส่วนบุคคลของข้าพเจ้า
@@ -264,12 +276,16 @@ export default function ScholarshipRequestForm({
         )}
       </div>
 
-      <div className="d-flex gap-2 mt-4">
-        <button type="submit" className="btn btn-primary" disabled={submitting}>
-          {submitting ? 'กำลังบันทึก...' : submitLabel}
-        </button>
-        {extraActions}
-      </div>
+      {(!readOnly || extraActions) && (
+        <div className="d-flex gap-2 mt-4">
+          {!readOnly && (
+            <button type="submit" className="btn btn-primary" disabled={submitting}>
+              {submitting ? 'กำลังบันทึก...' : submitLabel}
+            </button>
+          )}
+          {extraActions}
+        </div>
+      )}
     </form>
   );
 }

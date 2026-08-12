@@ -1,9 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { fetchRequests } from '../../api/requests';
+import { Tooltip } from 'bootstrap';
+import { fetchRequests, deleteRequest } from '../../api/requests';
 import { fetchScholarshipTypes } from '../../api/publicApi';
 import StatusBadge from '../../components/StatusBadge';
 import Pagination from '../../components/Pagination';
+import ConfirmModal from '../../components/ConfirmModal';
 import { STATUS_LABELS } from '../../constants';
 
 export default function RequestsListPage() {
@@ -17,6 +19,13 @@ export default function RequestsListPage() {
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('');
   const [type, setType] = useState('');
+  const [refreshIndex, setRefreshIndex] = useState(0);
+
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
+
+  const tableRef = useRef(null);
 
   useEffect(() => {
     fetchScholarshipTypes().then(setTypes);
@@ -29,7 +38,29 @@ export default function RequestsListPage() {
       .then(setData)
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
-  }, [page, search, status, type]);
+  }, [page, search, status, type, refreshIndex]);
+
+  useEffect(() => {
+    if (!tableRef.current) return undefined;
+    const triggers = [...tableRef.current.querySelectorAll('[data-bs-toggle="tooltip"]')];
+    const tooltips = triggers.map((el) => new Tooltip(el));
+    return () => tooltips.forEach((t) => t.dispose());
+  }, [data]);
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    setDeleteError('');
+    try {
+      await deleteRequest(deleteTarget.id);
+      setDeleteTarget(null);
+      setRefreshIndex((i) => i + 1);
+    } catch (err) {
+      setDeleteError(err.message || 'ไม่สามารถลบคำขอนี้ได้');
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -45,6 +76,7 @@ export default function RequestsListPage() {
   return (
     <div>
       {error && <div className="alert alert-danger">{error}</div>}
+      {deleteError && <div className="alert alert-danger">{deleteError}</div>}
 
       <div className="card card-primary card-outline">
         <div className="card-header">
@@ -117,7 +149,7 @@ export default function RequestsListPage() {
         </div>
 
         <div className="card-body p-0">
-          <div className="table-responsive">
+          <div className="table-responsive" ref={tableRef}>
             <table className="table table-hover align-middle mb-0">
               <thead>
                 <tr>
@@ -160,13 +192,56 @@ export default function RequestsListPage() {
                       </td>
                       <td>{formatDate(item.submitted_at)}</td>
                       <td className="text-end">
-                        <Link
-                          to={`/admin/requests/${item.id}/edit`}
-                          className="btn btn-sm btn-outline-primary"
-                        >
-                          <i className="bi bi-pencil-square me-1" aria-hidden="true"></i>
-                          แก้ไข
-                        </Link>
+                        <div className="btn-group" role="group">
+                          <Link
+                            to={`/admin/requests/${item.id}`}
+                            className="btn btn-success btn-sm"
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="top"
+                            title="ดูรายละเอียด"
+                          >
+                            <i className="bi bi-eye" aria-hidden="true"></i>
+                          </Link>
+                          <Link
+                            to={`/admin/requests/${item.id}/edit`}
+                            className="btn btn-warning btn-sm"
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="top"
+                            title="แก้ไขคำขอ"
+                          >
+                            <i className="bi bi-pencil-square" aria-hidden="true"></i>
+                          </Link>
+                          {item.status === 'pending' ? (
+                            <button
+                              type="button"
+                              className="btn btn-danger btn-sm"
+                              data-bs-toggle="tooltip"
+                              data-bs-placement="top"
+                              title="ลบคำขอ"
+                              onClick={() => setDeleteTarget(item)}
+                            >
+                              <i className="bi bi-trash3" aria-hidden="true"></i>
+                            </button>
+                          ) : (
+                            <span
+                              className="d-inline-block"
+                              style={{ marginLeft: 'calc(var(--bs-border-width) * -1)' }}
+                              tabIndex={0}
+                              data-bs-toggle="tooltip"
+                              data-bs-placement="top"
+                              title="ลบได้เฉพาะคำขอที่อยู่ในสถานะรอพิจารณา"
+                            >
+                              <button
+                                type="button"
+                                className="btn btn-danger btn-sm rounded-start-0"
+                                style={{ pointerEvents: 'none' }}
+                                disabled
+                              >
+                                <i className="bi bi-trash3" aria-hidden="true"></i>
+                              </button>
+                            </span>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -179,6 +254,17 @@ export default function RequestsListPage() {
           <Pagination page={data.page} totalPages={data.totalPages} onChange={setPage} />
         </div>
       </div>
+
+      <ConfirmModal
+        show={Boolean(deleteTarget)}
+        title="ยืนยันการลบคำขอทุน"
+        message={`ต้องการลบคำขอทุน ${deleteTarget?.request_no || ''} ใช่หรือไม่? การดำเนินการนี้ไม่สามารถยกเลิกได้`}
+        confirmText="ลบคำขอ"
+        confirmVariant="danger"
+        busy={deleting}
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   );
 }
