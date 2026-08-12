@@ -12,6 +12,7 @@ import RequestsListPage from './pages/admin/RequestsListPage';
 import RequestViewPage from './pages/admin/RequestViewPage';
 import AdminRequestFormPage from './pages/admin/RequestFormPage';
 import StaffListPage from './pages/admin/StaffListPage';
+import StaffViewPage from './pages/admin/StaffViewPage';
 import StaffFormPage from './pages/admin/StaffFormPage';
 
 export default function App() {
@@ -41,6 +42,7 @@ export default function App() {
           <Route path="requests/:id/edit" element={<AdminRequestFormPage />} />
           <Route path="staff" element={<StaffListPage />} />
           <Route path="staff/new" element={<StaffFormPage />} />
+          <Route path="staff/:id" element={<StaffViewPage />} />
           <Route path="staff/:id/edit" element={<StaffFormPage />} />
         </Route>
 

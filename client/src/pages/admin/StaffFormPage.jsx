@@ -1,15 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
+import StaffForm from '../../components/StaffForm';
 import ConfirmModal from '../../components/ConfirmModal';
 import { useAuth } from '../../context/AuthContext';
 import { fetchStaffById, createStaff, updateStaff, deleteStaff } from '../../api/staff';
-
-const emptyValues = {
-  first_name: '',
-  last_name: '',
-  username: '',
-  password: '',
-};
 
 export default function StaffFormPage() {
   const { id } = useParams();
@@ -17,7 +11,7 @@ export default function StaffFormPage() {
   const navigate = useNavigate();
   const { staff: currentStaff } = useAuth();
 
-  const [values, setValues] = useState(emptyValues);
+  const [initialValues, setInitialValues] = useState(null);
   const [loading, setLoading] = useState(isEdit);
   const [submitting, setSubmitting] = useState(false);
   const [serverErrors, setServerErrors] = useState([]);
@@ -34,32 +28,20 @@ export default function StaffFormPage() {
     if (!isEdit) return;
     setLoading(true);
     fetchStaffById(id)
-      .then((item) => setValues({ ...emptyValues, ...item, password: '' }))
+      .then(setInitialValues)
       .catch((err) => setGeneralError(err.message))
       .finally(() => setLoading(false));
   }, [id, isEdit]);
 
-  const errorFor = (field) => serverErrors.find((e) => e.field === field)?.message;
-  const fieldClass = (field) => `form-control${errorFor(field) ? ' is-invalid' : ''}`;
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setValues((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (payload) => {
     setSubmitting(true);
     setServerErrors([]);
     setGeneralError('');
     setSuccessMessage('');
     try {
-      const payload = { first_name: values.first_name, last_name: values.last_name, username: values.username };
-      if (values.password) payload.password = values.password;
-
       if (isEdit) {
         const updated = await updateStaff(id, payload);
-        setValues({ ...emptyValues, ...updated, password: '' });
+        setInitialValues(updated);
         setSuccessMessage('บันทึกการเปลี่ยนแปลงเรียบร้อยแล้ว');
       } else {
         await createStaff(payload);
@@ -107,7 +89,7 @@ export default function StaffFormPage() {
                 {isEdit ? (
                   <>
                     <i className="bi bi-pencil-square me-2" aria-hidden="true"></i>
-                    แก้ไขบัญชีเจ้าหน้าที่ {values.username}
+                    แก้ไขบัญชีเจ้าหน้าที่ {initialValues?.username || ''}
                   </>
                 ) : (
                   <>
@@ -127,78 +109,14 @@ export default function StaffFormPage() {
               {generalError && <div className="alert alert-danger">{generalError}</div>}
               {successMessage && <div className="alert alert-success">{successMessage}</div>}
 
-              <form onSubmit={handleSubmit} noValidate autoComplete="off">
-                <div className="row g-3">
-                  <div className="col-md-6">
-                    <label className="form-label">ชื่อ *</label>
-                    <input
-                      type="text"
-                      name="first_name"
-                      className={fieldClass('first_name')}
-                      placeholder="กรอกชื่อ"
-                      value={values.first_name}
-                      onChange={handleChange}
-                      required
-                      autoComplete="off"
-                    />
-                    {errorFor('first_name') && (
-                      <div className="invalid-feedback">{errorFor('first_name')}</div>
-                    )}
-                  </div>
-                  <div className="col-md-6">
-                    <label className="form-label">นามสกุล *</label>
-                    <input
-                      type="text"
-                      name="last_name"
-                      className={fieldClass('last_name')}
-                      placeholder="กรอกนามสกุล"
-                      value={values.last_name}
-                      onChange={handleChange}
-                      required
-                      autoComplete="off"
-                    />
-                    {errorFor('last_name') && (
-                      <div className="invalid-feedback">{errorFor('last_name')}</div>
-                    )}
-                  </div>
-                  <div className="col-md-6">
-                    <label className="form-label">ชื่อผู้ใช้ *</label>
-                    <input
-                      type="text"
-                      name="username"
-                      className={fieldClass('username')}
-                      placeholder="เช่น staff02"
-                      value={values.username}
-                      onChange={handleChange}
-                      required
-                      autoComplete="off"
-                    />
-                    {errorFor('username') && <div className="invalid-feedback">{errorFor('username')}</div>}
-                  </div>
-                  <div className="col-md-6">
-                    <label className="form-label">
-                      {isEdit ? 'รหัสผ่านใหม่' : 'รหัสผ่าน *'}
-                    </label>
-                    <input
-                      type="password"
-                      name="password"
-                      className={fieldClass('password')}
-                      placeholder={isEdit ? 'เว้นว่างไว้หากไม่ต้องการเปลี่ยน' : 'อย่างน้อย 6 ตัวอักษร'}
-                      value={values.password}
-                      onChange={handleChange}
-                      required={!isEdit}
-                      autoComplete="off"
-                    />
-                    {errorFor('password') && <div className="invalid-feedback">{errorFor('password')}</div>}
-                  </div>
-                </div>
-
-                <div className="d-flex gap-2 mt-4">
-                  <button type="submit" className="btn btn-primary" disabled={submitting}>
-                    {submitting ? 'กำลังบันทึก...' : isEdit ? 'บันทึกการเปลี่ยนแปลง' : 'บันทึก'}
-                  </button>
-                </div>
-              </form>
+              <StaffForm
+                initialValues={initialValues}
+                onSubmit={handleSubmit}
+                submitLabel={isEdit ? 'บันทึกการเปลี่ยนแปลง' : 'บันทึก'}
+                isEdit={isEdit}
+                submitting={submitting}
+                serverErrors={serverErrors}
+              />
             </div>
           </div>
         </div>
@@ -240,7 +158,7 @@ export default function StaffFormPage() {
       <ConfirmModal
         show={showDeleteModal}
         title="ยืนยันการลบบัญชีเจ้าหน้าที่"
-        message={`ต้องการลบบัญชีเจ้าหน้าที่ "${values.username}" ใช่หรือไม่? การดำเนินการนี้ไม่สามารถยกเลิกได้`}
+        message={`ต้องการลบบัญชีเจ้าหน้าที่ "${initialValues?.username || ''}" ใช่หรือไม่? การดำเนินการนี้ไม่สามารถยกเลิกได้`}
         confirmText="ลบบัญชี"
         confirmVariant="danger"
         busy={deleting}
