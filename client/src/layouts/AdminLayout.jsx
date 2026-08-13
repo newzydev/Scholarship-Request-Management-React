@@ -1,4 +1,6 @@
+import { useEffect } from 'react';
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { initialize as initAdminLte } from 'admin-lte';
 import { useAuth } from '../context/AuthContext';
 import ThemeToggle from '../components/ThemeToggle';
 
@@ -22,6 +24,12 @@ export default function AdminLayout() {
   const { staff, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+
+  // admin-lte's own auto-init runs before React mounts .app-sidebar, so it never sets the
+  // initial responsive collapse state — re-run it once the sidebar actually exists in the DOM.
+  useEffect(() => {
+    initAdminLte();
+  }, []);
 
   const handleLogout = async () => {
     await logout();
