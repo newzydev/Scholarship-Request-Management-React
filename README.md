@@ -18,9 +18,12 @@
 | Database | PostgreSQL (Aiven Cloud) |
 | Auth | JWT (httpOnly cookie) + bcrypt |
 | Container | Docker (Docker Compose + Nginx สำหรับรัน local, combined image เดียวสำหรับ Deploy) |
-| Deploy | [Render](https://render.com) (Docker runtime, auto-deploy จาก GitHub `main`) |
+| Deploy | [Render](https://render.com) (Docker runtime, auto-deploy จาก GitHub `master`) |
 
 โครงสร้างโปรเจกต์แบ่งเป็น `client/` (React) และ `server/` (Express API) อยู่ใน repository เดียวกัน
+
+**Branch strategy:** พัฒนาฟีเจอร์ต่างๆ บน branch `develop` เมื่อพัฒนาและทดสอบเสร็จแล้วจึง merge เข้า
+branch `master` ซึ่งเป็น branch ที่ผูกกับการ deploy ขึ้น production
 
 ---
 
@@ -30,7 +33,7 @@
 
 ระบบ deploy จริงแล้วบน [Render](https://render.com) แพลน **Starter** (รันตลอด 24 ชม. ไม่มี
 cold start) เชื่อมต่อฐานข้อมูล PostgreSQL จริงตัวเดียวกับที่ใช้พัฒนา (Aiven) และตั้งค่า
-**auto-deploy ทุกครั้งที่ `git push` ขึ้น branch `main`** ไว้แล้ว — ทดลองยื่นคำขอทุน หรือเข้าสู่
+**auto-deploy ทุกครั้งที่ `git push` ขึ้น branch `master`** ไว้แล้ว — ทดลองยื่นคำขอทุน หรือเข้าสู่
 ระบบเจ้าหน้าที่ด้วยบัญชีทดสอบด้านล่างได้ทันที
 
 ---
