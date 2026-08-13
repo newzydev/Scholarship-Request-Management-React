@@ -7,6 +7,12 @@ const typeExists = async (typeId) => {
   return true;
 };
 
+const bankExists = async (bankId) => {
+  const { rows } = await query('SELECT 1 FROM banks WHERE id = $1', [bankId]);
+  if (rows.length === 0) throw new Error('ไม่พบธนาคารที่เลือก');
+  return true;
+};
+
 // Shared field rules used by both the public submission form and the staff add/edit form,
 // per exam spec 3.2(ง): staff form must validate the same way as the student form.
 export const scholarshipRequestRules = (requirePdpaConsent) => [
@@ -19,6 +25,7 @@ export const scholarshipRequestRules = (requirePdpaConsent) => [
   body('email').trim().isEmail().withMessage('รูปแบบอีเมลไม่ถูกต้อง'),
   body('scholarship_type_id').isInt().withMessage('กรุณาเลือกประเภททุน').bail().custom(typeExists),
   body('amount_requested').isFloat({ gt: 0 }).withMessage('จำนวนเงินที่ขอต้องมากกว่า 0'),
+  body('bank_id').isInt().withMessage('กรุณาเลือกธนาคาร').bail().custom(bankExists),
   body('bank_account_no').trim().notEmpty().withMessage('กรุณากรอกเลขที่บัญชีธนาคาร'),
   body('reason').trim().notEmpty().withMessage('กรุณากรอกเหตุผลการขอทุน'),
   ...(requirePdpaConsent

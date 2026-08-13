@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { fetchScholarshipTypes } from '../api/publicApi';
+import { fetchScholarshipTypes, fetchBanks } from '../api/publicApi';
 
 const emptyValues = {
   student_id: '',
@@ -11,6 +11,7 @@ const emptyValues = {
   email: '',
   scholarship_type_id: '',
   amount_requested: '',
+  bank_id: '',
   bank_account_no: '',
   reason: '',
   pdpa_consent: false,
@@ -29,11 +30,16 @@ export default function ScholarshipRequestForm({
   const [values, setValues] = useState({ ...emptyValues, ...initialValues });
   const [types, setTypes] = useState([]);
   const [loadingTypes, setLoadingTypes] = useState(true);
+  const [banks, setBanks] = useState([]);
+  const [loadingBanks, setLoadingBanks] = useState(true);
 
   useEffect(() => {
     fetchScholarshipTypes()
       .then(setTypes)
       .finally(() => setLoadingTypes(false));
+    fetchBanks()
+      .then(setBanks)
+      .finally(() => setLoadingBanks(false));
   }, []);
 
   useEffect(() => {
@@ -199,7 +205,7 @@ export default function ScholarshipRequestForm({
           )}
         </div>
 
-        <div className="col-md-6">
+        <div className="col-md-4">
           <label className="form-label">จำนวนเงินที่ขอ (บาท) *</label>
           <input
             type="number"
@@ -218,7 +224,27 @@ export default function ScholarshipRequestForm({
             <div className="invalid-feedback">{errorFor('amount_requested')}</div>
           )}
         </div>
-        <div className="col-md-6">
+        <div className="col-md-4">
+          <label className="form-label">ชื่อธนาคาร *</label>
+          <select
+            name="bank_id"
+            className={selectClass('bank_id')}
+            value={values.bank_id}
+            onChange={handleChange}
+            required
+            disabled={loadingBanks || readOnly}
+            autoComplete="off"
+          >
+            <option value="">-- เลือกธนาคาร --</option>
+            {banks.map((bank) => (
+              <option key={bank.id} value={bank.id}>
+                {bank.name_th}
+              </option>
+            ))}
+          </select>
+          {errorFor('bank_id') && <div className="invalid-feedback">{errorFor('bank_id')}</div>}
+        </div>
+        <div className="col-md-4">
           <label className="form-label">เลขที่บัญชีธนาคาร *</label>
           <input
             type="text"

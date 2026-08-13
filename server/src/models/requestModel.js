@@ -4,10 +4,12 @@ const BASE_SELECT = `
   SELECT
     r.id, r.request_no, r.student_id, r.first_name, r.last_name, r.faculty, r.year_level,
     r.gpax, r.email, r.scholarship_type_id, t.code AS scholarship_type_code,
-    t.name_th AS scholarship_type_name, r.amount_requested, r.bank_account_no, r.reason,
-    r.pdpa_consent, r.status, r.status_note, r.submitted_at, r.created_by, r.updated_at
+    t.name_th AS scholarship_type_name, r.amount_requested, r.bank_id, bk.code AS bank_code,
+    bk.name_th AS bank_name, r.bank_account_no, r.reason, r.pdpa_consent, r.status,
+    r.status_note, r.submitted_at, r.created_by, r.updated_at
   FROM scholarship_requests r
   JOIN scholarship_types t ON t.id = r.scholarship_type_id
+  JOIN banks bk ON bk.id = r.bank_id
 `;
 
 export const listRequests = async ({ page = 1, pageSize = 10, search = '', status = '', typeId = '' }) => {
@@ -63,19 +65,19 @@ export const getRequestById = async (id) => {
 export const createRequest = async (data, createdBy = null) => {
   const {
     student_id, first_name, last_name, faculty, year_level, gpax, email,
-    scholarship_type_id, amount_requested, bank_account_no, reason, pdpa_consent,
+    scholarship_type_id, amount_requested, bank_id, bank_account_no, reason, pdpa_consent,
   } = data;
 
   const { rows } = await query(
     `INSERT INTO scholarship_requests
       (request_no, student_id, first_name, last_name, faculty, year_level, gpax, email,
-       scholarship_type_id, amount_requested, bank_account_no, reason, pdpa_consent, created_by)
+       scholarship_type_id, amount_requested, bank_id, bank_account_no, reason, pdpa_consent, created_by)
      VALUES
       ('SRQ-' || to_char(now(), 'YYYY') || '-' || lpad(nextval('scholarship_request_no_seq')::text, 6, '0'),
-       $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
+       $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)
      RETURNING id`,
     [student_id, first_name, last_name, faculty, year_level, gpax, email,
-      scholarship_type_id, amount_requested, bank_account_no, reason, pdpa_consent, createdBy]
+      scholarship_type_id, amount_requested, bank_id, bank_account_no, reason, pdpa_consent, createdBy]
   );
   return getRequestById(rows[0].id);
 };
@@ -83,16 +85,16 @@ export const createRequest = async (data, createdBy = null) => {
 export const updateRequest = async (id, data) => {
   const {
     student_id, first_name, last_name, faculty, year_level, gpax, email,
-    scholarship_type_id, amount_requested, bank_account_no, reason,
+    scholarship_type_id, amount_requested, bank_id, bank_account_no, reason,
   } = data;
 
   await query(
     `UPDATE scholarship_requests SET
        student_id=$1, first_name=$2, last_name=$3, faculty=$4, year_level=$5, gpax=$6, email=$7,
-       scholarship_type_id=$8, amount_requested=$9, bank_account_no=$10, reason=$11
-     WHERE id=$12 AND deleted_at IS NULL`,
+       scholarship_type_id=$8, amount_requested=$9, bank_id=$10, bank_account_no=$11, reason=$12
+     WHERE id=$13 AND deleted_at IS NULL`,
     [student_id, first_name, last_name, faculty, year_level, gpax, email,
-      scholarship_type_id, amount_requested, bank_account_no, reason, id]
+      scholarship_type_id, amount_requested, bank_id, bank_account_no, reason, id]
   );
   return getRequestById(id);
 };
