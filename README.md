@@ -5,8 +5,7 @@
 สำหรับข้อสอบภาคปฏิบัติ ตำแหน่งนักวิชาการคอมพิวเตอร์ กองพัฒนานักศึกษาและศิษย์เก่าสัมพันธ์
 มหาวิทยาลัยสงขลานครินทร์
 
-เอกสารวิเคราะห์ความต้องการและออกแบบระบบอยู่ใน [`PROJECT-PLAN.md`](PROJECT-PLAN.md)
-เอกสารออกแบบเพิ่มเติม (ER Diagram, System Architecture) อยู่ในโฟลเดอร์ [`docs/`](docs)
+เอกสารออกแบบระบบ (ER Diagram, System Architecture) อยู่ในโฟลเดอร์ [`docs/`](docs)
 
 ---
 
@@ -15,7 +14,7 @@
 | ส่วน | เทคโนโลยี |
 |---|---|
 | Frontend | React 19 (Vite), React Router, AdminLTE 4 (Bootstrap 5), Chart.js / react-chartjs-2, Axios |
-| Backend | Node.js, Express 5 (RESTful API) |
+| Backend | Node.js, Express 5 (RESTful API), ExcelJS (Export รายงานเป็น Excel) |
 | Database | PostgreSQL (Aiven Cloud) |
 | Auth | JWT (httpOnly cookie) + bcrypt |
 | Container | Docker (Docker Compose + Nginx สำหรับรัน local, combined image เดียวสำหรับ Deploy) |
@@ -107,6 +106,10 @@ Nginx พอร์ต `8080`, proxy เส้นทาง `/api` ไปยัง
   หลายรูปแบบ (Doughnut, Bar, Polar Area) ด้วย Chart.js
 - **จัดการบัญชีเจ้าหน้าที่ (CRUD)** — ดู/เพิ่ม/แก้ไข/ลบบัญชี (Soft Delete) ผ่านปุ่มไอคอนในตาราง
   รายการ เปลี่ยนรหัสผ่านได้ ป้องกันการลบบัญชีของตนเองขณะใช้งานอยู่ และตรวจสอบชื่อผู้ใช้ซ้ำ
+- **รายงานสรุป (Report)** — หน้ารายงานแยกจากแดชบอร์ด กรองข้อมูลตามช่วงวันที่ยื่น สถานะ และ
+  ประเภททุน แสดงการ์ดสรุปยอด ตารางสรุปจำนวน/ยอดเงินแยกตามประเภททุน และตารางรายการละเอียดแบบ
+  แบ่งหน้าตามเงื่อนไขที่กรอง พิมพ์รายงานผ่านเบราว์เซอร์ได้ทันที และ Export เป็นไฟล์ Excel (.xlsx)
+  ที่สร้างฝั่ง Server ด้วย ExcelJS (แยกชีทสรุปตามประเภททุน และชีทรายการละเอียด)
 
 ### ฟีเจอร์เสริม
 
@@ -135,7 +138,6 @@ Scholarship-Request-Management-React/
 ├── .env.example
 ├── RUN.bat            # รันระบบด้วย Docker (Windows, ดับเบิลคลิกได้)
 ├── STOP.bat           # หยุดระบบ (Windows, ดับเบิลคลิกได้)
-├── PROJECT-PLAN.md    # เอกสารวิเคราะห์ความต้องการและออกแบบระบบ
 └── README.md
 ```
 
@@ -143,8 +145,7 @@ Scholarship-Request-Management-React/
 
 ## การใช้เครื่องมือ AI ในการพัฒนา
 
-โปรเจกต์นี้พัฒนาโดยใช้ **Claude Code** ช่วยในกระบวนการพัฒนา ได้แก่ การวิเคราะห์โจทย์และออกแบบ
-สถาปัตยกรรมระบบ/ฐานข้อมูล (สรุปไว้ใน `PROJECT-PLAN.md`), การเขียนโค้ด Backend/Frontend ตาม
-ข้อกำหนด, การเขียนสคริปต์ migration/seed ฐานข้อมูล, การตั้งค่า Docker/Docker Compose/Deploy
-และการทดสอบการทำงานของระบบผ่านเบราว์เซอร์จริงก่อนส่งมอบงาน โดยผู้พัฒนาเป็นผู้ตรวจทาน
-กำหนดข้อกำหนด และยืนยันผลลัพธ์ทุกขั้นตอน
+โปรเจกต์นี้พัฒนาโดยใช้ **Claude Code** เป็นผู้ช่วยตลอดกระบวนการพัฒนา ทั้งการเขียนโค้ด
+Backend/Frontend, สคริปต์ migration/seed ฐานข้อมูล, และการตั้งค่า Docker/Docker Compose/Deploy
+ภายใต้การกำหนดขอบเขตงาน ตัดสินใจเชิงสถาปัตยกรรม ตรวจทานโค้ด และทดสอบยืนยันผลลัพธ์ผ่าน
+เบราว์เซอร์จริงทุกขั้นตอนโดยผู้พัฒนา

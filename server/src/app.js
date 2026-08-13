@@ -12,6 +12,7 @@ import publicRoutes from './routes/publicRoutes.js';
 import requestRoutes from './routes/requestRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
 import staffRoutes from './routes/staffRoutes.js';
+import reportRoutes from './routes/reportRoutes.js';
 import { notFoundHandler, errorHandler } from './middlewares/errorHandler.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -39,6 +40,7 @@ app.use('/api/public', publicRoutes);
 app.use('/api/scholarship-requests', requestRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/staff', staffRoutes);
+app.use('/api/reports', reportRoutes);
 
 // Optional: serve the built React app directly from this same process/port.
 // Only active when a client build is present at ../public (produced by the

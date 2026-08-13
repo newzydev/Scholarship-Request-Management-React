@@ -1,4 +1,6 @@
+import { useEffect } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
+import { initialize as initAdminLte } from 'admin-lte';
 import ThemeToggle from '../components/ThemeToggle';
 
 const PAGE_TITLES = {
@@ -11,6 +13,12 @@ const closeSidebarOnMobile = () => document.body.classList.remove('sidebar-open'
 export default function PublicLayout() {
   const location = useLocation();
   const pageTitle = PAGE_TITLES[location.pathname] || 'ระบบบริหารจัดการคำขอทุนการศึกษา';
+
+  // admin-lte's own auto-init runs before React mounts .app-sidebar, so it never sets the
+  // initial responsive collapse state — re-run it once the sidebar actually exists in the DOM.
+  useEffect(() => {
+    initAdminLte();
+  }, []);
 
   return (
     <div className="app-wrapper">

@@ -1,16 +1,20 @@
+import { useEffect } from 'react';
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { initialize as initAdminLte } from 'admin-lte';
 import { useAuth } from '../context/AuthContext';
 import ThemeToggle from '../components/ThemeToggle';
 
 const NAV_ITEMS = [
   { to: '/admin/dashboard', label: 'แดชบอร์ด', icon: 'bi-speedometer2' },
   { to: '/admin/requests', label: 'รายการคำขอทุน', icon: 'bi-card-list' },
+  { to: '/admin/reports', label: 'รายงานสรุป', icon: 'bi-file-earmark-bar-graph' },
   { to: '/admin/staff', label: 'จัดการเจ้าหน้าที่', icon: 'bi-people-fill' },
 ];
 
 const PAGE_TITLES = {
   '/admin/dashboard': 'แดชบอร์ดสรุปภาพรวมคำขอทุน',
   '/admin/requests': 'รายการคำขอทุนการศึกษา',
+  '/admin/reports': 'รายงานสรุปคำขอทุนการศึกษา',
   '/admin/staff': 'จัดการเจ้าหน้าที่',
 };
 
@@ -20,6 +24,12 @@ export default function AdminLayout() {
   const { staff, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+
+  // admin-lte's own auto-init runs before React mounts .app-sidebar, so it never sets the
+  // initial responsive collapse state — re-run it once the sidebar actually exists in the DOM.
+  useEffect(() => {
+    initAdminLte();
+  }, []);
 
   const handleLogout = async () => {
     await logout();

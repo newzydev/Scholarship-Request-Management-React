@@ -5,5 +5,4 @@
 .env.*
 !.env.example
 docs
-PROJECT-PLAN.md
 README.md
