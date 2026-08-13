@@ -5,12 +5,14 @@ import ThemeToggle from '../components/ThemeToggle';
 const NAV_ITEMS = [
   { to: '/admin/dashboard', label: 'แดชบอร์ด', icon: 'bi-speedometer2' },
   { to: '/admin/requests', label: 'รายการคำขอทุน', icon: 'bi-card-list' },
+  { to: '/admin/reports', label: 'รายงานสรุป', icon: 'bi-file-earmark-bar-graph' },
   { to: '/admin/staff', label: 'จัดการเจ้าหน้าที่', icon: 'bi-people-fill' },
 ];
 
 const PAGE_TITLES = {
   '/admin/dashboard': 'แดชบอร์ดสรุปภาพรวมคำขอทุน',
   '/admin/requests': 'รายการคำขอทุนการศึกษา',
+  '/admin/reports': 'รายงานสรุปคำขอทุนการศึกษา',
   '/admin/staff': 'จัดการเจ้าหน้าที่',
 };
 

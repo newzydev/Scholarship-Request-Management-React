@@ -9,6 +9,7 @@ import PublicRequestFormPage from './pages/public/RequestFormPage';
 import RequestSuccessPage from './pages/public/RequestSuccessPage';
 import DashboardPage from './pages/admin/DashboardPage';
 import RequestsListPage from './pages/admin/RequestsListPage';
+import ReportPage from './pages/admin/ReportPage';
 import RequestViewPage from './pages/admin/RequestViewPage';
 import AdminRequestFormPage from './pages/admin/RequestFormPage';
 import StaffListPage from './pages/admin/StaffListPage';
@@ -40,6 +41,7 @@ export default function App() {
           <Route path="requests/new" element={<AdminRequestFormPage />} />
           <Route path="requests/:id" element={<RequestViewPage />} />
           <Route path="requests/:id/edit" element={<AdminRequestFormPage />} />
+          <Route path="reports" element={<ReportPage />} />
           <Route path="staff" element={<StaffListPage />} />
           <Route path="staff/new" element={<StaffFormPage />} />
           <Route path="staff/:id" element={<StaffViewPage />} />

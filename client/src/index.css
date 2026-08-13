@@ -6,3 +6,17 @@ body {
 #root {
   min-height: 100vh;
 }
+
+/* Print override: show only the printable report content, hide app chrome */
+@media print {
+  .app-sidebar,
+  .app-header,
+  .app-footer,
+  .app-content-header {
+    display: none !important;
+  }
+
+  .app-main {
+    margin-left: 0 !important;
+  }
+}
